@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .hero {
+    width: 100%;
+    min-height: calc(100vh - 60px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+
+    /* Additional styles untuk DataTable */
+    .dataTables_wrapper {
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+        width: 100%;
+        margin: 0;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.3);
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .dataTables_wrapper .dataTables_filter input:focus {
+        outline: none;
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40,167,69,0.25);
+    }
+
+    .dataTables_wrapper .dataTables_filter input::placeholder {
+        color: rgba(255,255,255,0.7);
+    }
+
+    /* Table container dengan style minecraft - DISESUAIKAN */
+    .table-container {
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 2rem auto;
+        border: 3px solid #4a4a4a;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        overflow-x: auto;
+        width: 100%;
+        max-width: 1200px;
+    }
+
+    /* Enhanced table styling dengan minecraft theme */
+    .table-dark {
+        background: rgba(30, 30, 30, 0.9);
+        border-radius: 10px;
+        overflow: hidden;
+        border: 2px solid #4a4a4a;
+        width: 100%;
+        table-layout: auto; /* Memungkinkan kolom menyesuaikan konten */
+    }
+
+    .table-dark th {
+        background: linear-gradient(135deg, #28a745, #218838);
+        border: 2px solid #4a4a4a;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem 0.75rem;
+        font-family: 'Minecraftia', sans-serif;
+        font-size: 12px;
+        color: white;
+        white-space: nowrap; /* Mencegah header terpotong */
+        min-width: 120px; /* Minimum width untuk setiap kolom */
+    }
+
+    .table-dark td {
+        border: 1px solid #4a4a4a;
+        padding: 0.75rem;
+        vertical-align: middle;
+        background: rgba(60, 60, 60, 0.8);
+        color: #fff;
+        min-width: 120px; /* Minimum width untuk setiap cell */
+    }
+
+    .table-dark tbody tr:hover {
+        background: rgba(40, 167, 69, 0.3);
+        transform: scale(1.005);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+    }
+
+    /* Khusus untuk kolom processed_text - lebih lebar */
+    .processed-text-col {
+        min-width: 400px;
+        max-width: 500px;
+    }
+
+    .comment-cell {
+        max-width: 500px; /* Diperlebar */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        word-wrap: break-word;
+    }
+
+    .comment-cell:hover {
+        white-space: normal;
+        overflow: visible;
+        background: rgba(40, 167, 69, 0.4);
+        border-radius: 5px;
+        padding: 0.75rem;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.5);
+        z-index: 1000;
+        position: relative;
+        border: 2px solid #28a745;
+    }
+
+    /* DataTables layout fixes */
+    .dataTables_wrapper .row {
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        flex: 0 0 auto;
+        margin-right: 2rem;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        flex: 0 0 auto;
+    }
+
+    /* Bottom info and pagination layout */
+    .dataTables_wrapper .dataTables_info {
+        float: left;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        font-family: 'Minecraftia', sans-serif;
+        font-size: 11px;
+        color: #cccccc;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        float: right;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Clear float after pagination */
+    .dataTables_wrapper::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    /* Pagination styling minecraft theme */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: #fff !important;
+        background: rgba(40, 167, 69, 0.3);
+        border: 2px solid #28a745;
+        margin: 0 3px;
+        border-radius: 5px;
+        font-family: 'Minecraftia', sans-serif;
+        font-size: 11px;
+        padding: 6px 12px;
+        display: inline-block;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: rgba(40, 167, 69, 0.6) !important;
+        border-color: #28a745 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #28a745 !important;
+        border-color: #218838 !important;
+        color: white !important;
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.6);
+    }
+
+    /* Loading indicator */
+    .dataTables_processing {
+        background: rgba(30, 30, 30, 0.95) !important;
+        color: #28a745 !important;
+        border: 2px solid #28a745 !important;
+        border-radius: 10px !important;
+        font-family: 'Minecraftia', sans-serif;
+    }
+
+    /* Custom scrollbar minecraft style */
+    .dataTables_scrollBody::-webkit-scrollbar {
+        height: 12px;
+        width: 12px;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-track {
+        background: rgba(60, 60, 60, 0.8);
+        border-radius: 6px;
+        border: 1px solid #4a4a4a;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #28a745, #218838);
+        border-radius: 6px;
+        border: 1px solid #4a4a4a;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #218838, #1e7e34);
+    }
+
+    /* Responsive fixes */
+    @media (max-width: 768px) {
+        .table-container {
+            padding: 1rem;
+            margin: 1rem;
+            width: 95%;
+        }
+        
+        .overlay {
+            padding: 20px;
+            margin: 10px;
+        }
+
+        .dataTables_wrapper .row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            float: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+    }
+
+    /* Info text styling */
+    .info-text {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        color: #cccccc;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Header title dengan minecraft font */
+    .minecraft-title {
+        font-family: 'Minecraftia', sans-serif;
+        font-size: 2.5rem;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+        margin-bottom: 1rem;
+    }
+
+    /* DataTable labels styling */
+    .dataTables_wrapper .dataTables_length label,
+    .dataTables_wrapper .dataTables_filter label {
+        font-family: 'Minecraftia', sans-serif;
+        font-size: 11px;
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    /* Fix untuk dropdown select */
+    .dataTables_wrapper .dataTables_length select {
+        background-color: rgba(40, 167, 69, 0.2);
+        border: 2px solid #28a745;
+        color: #28a745;
+        font-family: 'Minecraftia', sans-serif;
+        font-size: 11px;
+    }
+
+    /* Search box enhancement */
+    .dataTables_wrapper .dataTables_filter input {
+        background-color: rgba(60, 60, 60, 0.8);
+        border: 2px solid #28a745;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Container utama disesuaikan */
+    .overlay {
+        width: 95%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+</style>
+
+<div class="hero">
+    <div class="overlay text-white">
+        <h2 class="minecraft-title text-center">
+            Preprocessed Data
+        </h2>
+        <p class="info-text text-center">
+            Text data after preprocessing and cleaning
+        </p>
+
+        <div class="table-container">
+            <table id="preprocessedDataTable" class="table table-dark table-striped table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        {% for col in data.columns %}
+                        <th class="{% if col == 'processed_text' %}processed-text-col{% endif %}">{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for _, row in data.iterrows() %}
+                    <tr>
+                        {% for cell in row %}
+                        <td class="{% if data.columns[loop.index0] == 'processed_text' %}comment-cell processed-text-col{% endif %}"
+                            title="{{ cell|string|truncate(200) }}">
+                            {{ cell }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/visual" class="btn btn-tx btn-lg">
+                Next: Visualization
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- DataTables CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-bs5/1.13.6/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive-bs5/2.5.0/responsive.bootstrap5.min.css" rel="stylesheet">
+
+<!-- jQuery (required for DataTables) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net/1.13.6/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-bs5/1.13.6/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive/2.5.0/dataTables.responsive.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-responsive-bs5/2.5.0/responsive.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#preprocessedDataTable').DataTable({
+        responsive: true,
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50], [10, 25, 50]],
+        order: [[0, 'asc']],
+        scrollX: true, // Enable horizontal scrolling
+        autoWidth: false, // Disable auto width calculation
+        language: {
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: "No data available",
+            infoFiltered: "(filtered from _MAX_ total entries)",
+            paginate: {
+                first: "First",
+                last: "Last", 
+                next: "Next",
+                previous: "Prev"
+            },
+            processing: "Loading..."
+        },
+        columnDefs: [
+            {
+                targets: '_all',
+                render: function(data, type, row, meta) {
+                    const columnName = $('#preprocessedDataTable thead th').eq(meta.col).text().trim();
+                    
+                    if (columnName.toLowerCase() === 'processed_text' && type === 'display') {
+                        if (data && data.length > 80) {
+                            return '<span title="' + data + '">' + data.substr(0, 80) + '...</span>';
+                        }
+                    }
+                    return data;
+                }
+            },
+            {
+                targets: 0, // First column (processed_text biasanya)
+                width: "50%"
+            },
+            {
+                targets: [1, 2], // Other columns
+                width: "25%"
+            }
+        ],
+        initComplete: function() {
+            $('.dataTables_filter input').attr('placeholder', 'Search preprocessed data...');
+            
+            // Styling adjustments
+            $('.dataTables_wrapper').css({
+                'font-family': 'Segoe UI, sans-serif'
+            });
+
+            // Fix layout after initialization
+            this.api().columns.adjust().draw();
+        },
+        drawCallback: function() {
+            // Add minecraft-style hover effects after each draw
+            $('.paginate_button').hover(
+                function() {
+                    $(this).css('transform', 'translateY(-2px)');
+                },
+                function() {
+                    $(this).css('transform', 'translateY(0)');
+                }
+            );
+        }
+    });
+
+    // Smooth scrolling
+    $('html, body').css({
+        'scroll-behavior': 'smooth'
+    });
+    
+    // Additional minecraft-style interactions
+    $('.table-dark tbody tr').hover(
+        function() {
+            $(this).css('cursor', 'pointer');
+        }
+    );
+});
+</script>
+{% endblock %}

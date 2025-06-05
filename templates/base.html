@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sentiment Analysis - Minecraft 1.21</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      overflow-x: hidden;
+      
+    }
+
+    @font-face {
+      font-family: 'Minecraftia';
+      src: url("{{ url_for('static', filename='fonts/Minecraftia-Regular.ttf') }}") format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    .minecraft-font {
+      font-family: 'Minecraftia', sans-serif;
+    }
+
+    .navbar-minecraft {
+      background-color: #1e1e1e;
+      padding: 0.5rem 2rem;
+      position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+    }
+
+    .navbar-minecraft .nav-link {
+      color: white;
+      font-weight: bold;
+      margin-right: 1rem;
+      font-family: 'Minecraftia', sans-serif;
+      font-size: 14px;
+    }
+
+    .navbar-minecraft .nav-link:hover {
+      color: #cccccc;
+    }
+
+    .navbar-minecraft .navbar-brand img {
+      height: 40px;
+    }
+
+    .hero {
+      background-image: url("/static/assets/backgroundMC.jpg");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: calc(100vh - 20px);
+      width: 100%;
+      height: calc(100vh - 80px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-top: 60px;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 40px;
+      border-radius: 15px;
+      text-align: center;
+      overflow-x: auto;
+      max-width: 95vw;
+    }
+
+    .btn-tx {
+      background-color: #28a745;
+      border: none;
+      font: 1em sans-serif;
+      font-family: 'Minecraftia', sans-serif;
+      color: white;
+    }
+
+    .btn-tx:hover {
+      background-color: #218838;
+    }
+
+    .header-nav {
+  display: flex;
+  gap: 20px;
+  background-color: #1e1e1e;
+  padding: 10px 20px;
+}
+
+.nav-link {
+  color: #ccc;
+  text-decoration: none;
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  transition: 0.3s;
+}
+
+.nav-link:hover {
+  color: rgb(18, 219, 0) !important;
+}
+
+.nav-link.active {
+  background-color: #3c3c3c;
+  color: white !important;
+  border-radius: 10px;
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Navbar Minecraft Style -->
+  <nav class="navbar navbar-expand-lg navbar-minecraft">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+        <img src="/static/assets/logo_header.webp" alt="Minecraft Logo">
+      </a>
+      <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon text-white"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == '/scrape' %}active{% endif %}" href="/scrape">Scrape</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == '/preprocess' %}active{% endif %}" href="/preprocess">Preprocess</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == '/visual' %}active{% endif %}" href="/visual">Visual</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  {% block content %}{% endblock %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
